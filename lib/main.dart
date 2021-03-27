@@ -7,11 +7,12 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final appTitle = 'Popular Movies';
+    final appTitle = 'Movies';
 
     return MaterialApp(
       theme: ThemeData(
-        primaryColor: Colors.deepPurpleAccent[700],
+        primaryColor: Colors.redAccent[700],
+        primarySwatch: Colors.red,
       ),
       title: appTitle,
       home: MyHomePage(title: appTitle),
