@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:movies_browser/SignUp.dart';
 import 'package:movies_browser/authentication_service.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart';
 
 class SignInPage extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
@@ -65,24 +67,43 @@ class SignInPage extends StatelessWidget {
                                 );
                           },
                           child: Text("Sign In")),
-                      ElevatedButton(
-                          style: ButtonStyle(
-                              animationDuration: Duration(seconds: 5)),
-                          onPressed: () {
-                            context
-                                .read<AuthenticationService>()
-                                .signInWithGoogle();
-                          },
-                          child: Text("Sign In with Google")),
-                      // ElevatedButton(
-                      //     style: ButtonStyle(
-                      //         animationDuration: Duration(seconds: 5)),
-                      //     onPressed: () {
-                      //       context
-                      //           .read<AuthenticationService>()
-                      //           .signInWithFacebook();
-                      //     },
-                      //     child: Text("Sign In with Facebook")),
+                      SignInButton(
+                        Buttons.Google,
+                        onPressed: () {
+                          context
+                              .read<AuthenticationService>()
+                              .signInWithGoogle();
+                        },
+                      ),
+                      SignInButton(
+                        Buttons.Facebook,
+                        onPressed: () {
+                          context.read<AuthenticationService>().handleLogin();
+                        },
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.only(top: 20),
+                            child: Text("Don't have an account?"),
+                          ),
+                          Container(
+                              padding: EdgeInsets.only(top: 20),
+                              child: TextButton(
+                                child: Text('Sign Up'),
+                                onPressed: () {
+                                  // context
+                                  //     .read<AuthenticationService>()
+                                  //     .signUp();
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => SignUp()));
+                                },
+                              ))
+                        ],
+                      )
                     ],
                   ),
                 )
