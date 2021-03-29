@@ -7,7 +7,8 @@ import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
 import 'package:movies_browser/Constants.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-
+import 'package:movies_browser/authentication_service.dart';
+import 'package:provider/provider.dart';
 import 'getDescrip.dart';
 
 Future<List<Movie>> fetchPopularMovies(http.Client client) async {
@@ -37,6 +38,29 @@ List<Movie> parseTrendingMovies(String responseBody) {
 
   return parsed.map<Movie>((json) => Movie.fromJson(json)).toList();
 }
+
+Future<String> fetchTrailers(http.Client client, int id) async {
+  final response = await client.get(Uri.parse(Constants.getTrailer(id)));
+  print('Hellooooo ${Uri.parse(Constants.getTrailer(id))}');
+  return compute(parseTrailers, response.body);
+}
+
+String parseTrailers(String responseBody) {
+  final parsed =
+      jsonDecode(responseBody)['results'].cast<Map<String, dynamic>>();
+  print("HIII ${parsed<String>((json) => json['key'])}");
+  return parsed<String>((json) => json['key']);
+}
+
+// class Trailer {
+//   final String key;
+//   Trailer({this.key});
+//   factory Trailer.fromJson(Map<String, dynamic> json) {
+//     return Trailer(
+//       key: json['key'] as String,
+//     );
+//   }
+// }
 
 class Movie {
   final String posterPath;
@@ -82,6 +106,15 @@ class MyHomePage extends StatelessWidget {
             },
             icon: Icon(Icons.menu, color: Colors.white),
           ),
+          actions: <Widget>[
+            IconButton(
+              tooltip: 'Open menu',
+              onPressed: () {
+                context.read<AuthenticationService>().signOut();
+              },
+              icon: Icon(Icons.logout, color: Colors.white),
+            ),
+          ],
           centerTitle: true,
           title: Text(title),
         ),
@@ -131,6 +164,7 @@ class MyHomePage extends StatelessWidget {
 
 class TrendingMovies extends StatelessWidget {
   final List<Movie> movies;
+
   TrendingMovies({Key key, this.movies}) : super(key: key);
 
   @override
@@ -164,12 +198,14 @@ class TrendingMovies extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                               builder: (context) => DescriptionPage(
-                                  title: movies[itemIndex].title,
-                                  image: Constants.imagesApi +
-                                      movies[itemIndex].posterPath,
-                                  releaseD: movies[itemIndex].releaseDate,
-                                  overview: movies[itemIndex].overview,
-                                  ratingv: movies[itemIndex].rating))),
+                                    id: movies[itemIndex].id,
+                                    title: movies[itemIndex].title,
+                                    image: Constants.imagesApi +
+                                        movies[itemIndex].posterPath,
+                                    releaseD: movies[itemIndex].releaseDate,
+                                    overview: movies[itemIndex].overview,
+                                    ratingv: movies[itemIndex].rating,
+                                  ))),
                     },
                 child: Container(
                   child: Image.network(

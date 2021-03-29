@@ -4,21 +4,37 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 
-final _url = 'https://youtu.be/BdJKm16Co6M';
+import 'getImages.dart';
+
+final _url = 'https://youtu.be/';
 // final _url = 'https://www.google.com';
-void _launchURL() async =>
-    await canLaunch(_url) ? await launch(_url) : throw 'Could not launch $_url';
 
+void _launchURL(int id, key) async {
+  String keyy = fetchTrailers(http.Client(), id).toString();
+  await canLaunch(keyy.toString())
+      ? await launch(_url + keyy.toString())
+      : throw 'Could not launch ${_url + keyy.toString()}';
+}
+
+//yelzeeeemni nejbed el key mel api !! ( api normalement mriguel !!!)
 class DescriptionPage extends StatelessWidget {
   final String title;
   final String image;
   final String releaseD;
   final String overview;
   final num ratingv;
-
+  final int id;
+  final String keyy;
   DescriptionPage(
-      {this.title, this.image, this.releaseD, this.overview, this.ratingv});
+      {this.id,
+      this.title,
+      this.image,
+      this.releaseD,
+      this.overview,
+      this.ratingv,
+      this.keyy});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,7 +113,7 @@ class DescriptionPage extends StatelessWidget {
                 alignment: Alignment.bottomRight,
                 child: FloatingActionButton(
                   tooltip: 'Play Trailer',
-                  onPressed: () => {_launchURL()},
+                  onPressed: () => {_launchURL(id, key)},
                   child: const Icon(Icons.play_arrow, color: Colors.white),
                   backgroundColor: Colors.redAccent[700],
                 ),
