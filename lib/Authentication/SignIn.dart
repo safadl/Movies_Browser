@@ -78,7 +78,9 @@ class SignInPage extends StatelessWidget {
                       SignInButton(
                         Buttons.Facebook,
                         onPressed: () {
-                          context.read<AuthenticationService>().handleLogin();
+                          context
+                              .read<AuthenticationService>()
+                              .signInWithFacebook();
                         },
                       ),
                       Row(
