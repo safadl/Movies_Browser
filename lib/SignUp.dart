@@ -6,10 +6,13 @@ class SignUp extends StatelessWidget {
     return Scaffold(
         body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       Center(
-        child: Text(
-          "Let's Get Started!",
-          style: TextStyle(
-              fontWeight: FontWeight.w600, color: Colors.black, fontSize: 25),
+        child: Padding(
+          padding: const EdgeInsets.all(50.0),
+          child: Text(
+            "Let's Get Started!",
+            style: TextStyle(
+                fontWeight: FontWeight.w600, color: Colors.black, fontSize: 25),
+          ),
         ),
       ),
       Padding(
