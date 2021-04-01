@@ -2,7 +2,10 @@
     package="com.example.movies_browser">
    <application
         android:label="movies_browser"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true"
+
+        >
         <activity
             android:name=".MainActivity"
             
