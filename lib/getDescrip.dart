@@ -4,21 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:http/http.dart' as http;
 
-import 'getImages.dart';
-
-final _url = 'https://youtu.be/';
-// final _url = 'https://www.google.com';
+final _url = 'https://www.youtube.com/results?search_query=';
 
 void _launchURL(int id, key) async {
-  String keyy = fetchTrailers(http.Client(), id).toString();
-  await canLaunch(keyy.toString())
-      ? await launch(_url + keyy.toString())
-      : throw 'Could not launch ${_url + keyy.toString()}';
+  await canLaunch(_url + mtitle + " trailer")
+      ? await launch(_url + mtitle + " trailer")
+      : throw 'Could not launch ${_url + mtitle + " trailer"}';
 }
 
-//yelzeeeemni nejbed el key mel api !! ( api normalement mriguel !!!)
+var mtitle;
+
 class DescriptionPage extends StatelessWidget {
   final String title;
   final String image;
@@ -37,6 +33,8 @@ class DescriptionPage extends StatelessWidget {
       this.keyy});
   @override
   Widget build(BuildContext context) {
+    mtitle = this.title;
+
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       appBar: AppBar(

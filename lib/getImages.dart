@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +9,10 @@ import 'package:http/http.dart' as http;
 import 'package:movies_browser/Constants.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:movies_browser/authentication_service.dart';
+import 'package:movies_browser/favorites.dart';
 import 'package:provider/provider.dart';
 import 'getDescrip.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 Future<List<Movie>> fetchPopularMovies(http.Client client) async {
   final response = await client.get(Uri.parse(Constants.PopularApi));
@@ -39,29 +42,6 @@ List<Movie> parseTrendingMovies(String responseBody) {
   return parsed.map<Movie>((json) => Movie.fromJson(json)).toList();
 }
 
-Future<String> fetchTrailers(http.Client client, int id) async {
-  final response = await client.get(Uri.parse(Constants.getTrailer(id)));
-  print('Hellooooo ${Uri.parse(Constants.getTrailer(id))}');
-  return compute(parseTrailers, response.body);
-}
-
-String parseTrailers(String responseBody) {
-  final parsed =
-      jsonDecode(responseBody)['results'].cast<Map<String, dynamic>>();
-  print("HIII ${parsed<String>((json) => json['key'])}");
-  return parsed<String>((json) => json['key']);
-}
-
-// class Trailer {
-//   final String key;
-//   Trailer({this.key});
-//   factory Trailer.fromJson(Map<String, dynamic> json) {
-//     return Trailer(
-//       key: json['key'] as String,
-//     );
-//   }
-// }
-
 class Movie {
   final String posterPath;
   final int id;
@@ -89,38 +69,16 @@ class Movie {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MoviesScreen extends StatelessWidget {
   final String title;
 
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MoviesScreen({Key key, this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          elevation: 2,
-          leading: IconButton(
-            tooltip: 'Open menu',
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-            icon: Icon(Icons.menu, color: Colors.white),
-          ),
-          actions: <Widget>[
-            IconButton(
-              tooltip: 'Open menu',
-              onPressed: () {
-                context.read<AuthenticationService>().signOut();
-              },
-              icon: Icon(Icons.logout, color: Colors.white),
-            ),
-          ],
-          centerTitle: true,
-          title: Text(title),
-        ),
         body: Container(
             decoration: BoxDecoration(
-              // borderRadius: BorderRadius.circular(20),
               color: Colors.black87,
             ),
             padding: const EdgeInsets.all(8.0),
@@ -207,10 +165,18 @@ class TrendingMovies extends StatelessWidget {
                                     ratingv: movies[itemIndex].rating,
                                   ))),
                     },
-                child: Container(
-                  child: Image.network(
-                      Constants.imagesApi + movies[itemIndex].posterPath),
-                ));
+                child: Stack(children: [
+                  Container(
+                    child: Image.network(
+                        Constants.imagesApi + movies[itemIndex].posterPath),
+                  ),
+                  Align(
+                      alignment: Alignment.bottomRight,
+                      child: Icon(
+                        Icons.bookmark,
+                        color: Colors.white,
+                      ))
+                ]));
           },
         ))
       ],
@@ -218,11 +184,16 @@ class TrendingMovies extends StatelessWidget {
   }
 }
 
-class PopularMoviesList extends StatelessWidget {
+class PopularMoviesList extends StatefulWidget {
   final List<Movie> movies;
-
   PopularMoviesList({Key key, this.movies}) : super(key: key);
+  @override
+  _PopularMoviesListState createState() => _PopularMoviesListState();
+}
 
+class _PopularMoviesListState extends State<PopularMoviesList> {
+  bool check = false;
+  List<bool> _isFavorite = List.filled(200, false);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -247,7 +218,7 @@ class PopularMoviesList extends StatelessWidget {
                   crossAxisCount: 2,
                   mainAxisSpacing: 10.0,
                 ),
-                itemCount: movies.length,
+                itemCount: widget.movies.length,
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () => {
@@ -255,12 +226,12 @@ class PopularMoviesList extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                               builder: (context) => DescriptionPage(
-                                  title: movies[index].title,
+                                  title: widget.movies[index].title,
                                   image: Constants.imagesApi +
-                                      movies[index].posterPath,
-                                  releaseD: movies[index].releaseDate,
-                                  overview: movies[index].overview,
-                                  ratingv: movies[index].rating)))
+                                      widget.movies[index].posterPath,
+                                  releaseD: widget.movies[index].releaseDate,
+                                  overview: widget.movies[index].overview,
+                                  ratingv: widget.movies[index].rating)))
                     },
                     child: Flex(
                       direction: Axis.vertical,
@@ -270,11 +241,44 @@ class PopularMoviesList extends StatelessWidget {
                         Expanded(
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12.0),
-                            child: FadeInImage.assetNetwork(
-                                fit: BoxFit.cover,
-                                placeholder: './assets/images/placeholder.png',
-                                image: Constants.imagesApi +
-                                    movies[index].posterPath),
+                            child: Stack(
+                              children: [
+                                Container(
+                                  child: FadeInImage.assetNetwork(
+                                      fit: BoxFit.cover,
+                                      placeholder:
+                                          './assets/images/placeholder.png',
+                                      image: Constants.imagesApi +
+                                          widget.movies[index].posterPath),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: IconButton(
+                                      onPressed: () => {
+                                        setState(() => _isFavorite[index] =
+                                            !_isFavorite[index]),
+                                        print("FAVORITE MOVIE IS " +
+                                            widget.movies[index].title),
+                                        if (_isFavorite[index] == true)
+                                          {
+                                            AddFavorite(
+                                                widget.movies[index].title,
+                                                widget.movies[index].posterPath)
+                                          }
+                                      },
+                                      icon: Icon(
+                                          _isFavorite[index] == false
+                                              ? Icons.bookmark_border
+                                              : Icons.bookmark,
+                                          color: Colors.white),
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
                         ),
                         SizedBox(

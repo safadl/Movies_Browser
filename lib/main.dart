@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:movies_browser/Authentication/SignIn.dart';
+import 'package:movies_browser/Home.dart';
 import 'package:movies_browser/authentication_service.dart';
 import 'package:provider/provider.dart';
 import 'getImages.dart';
@@ -9,6 +11,8 @@ import 'getImages.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+
   runApp(MyApp());
 }
 
@@ -40,7 +44,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// MyHomePage(title: appTitle)
 class AuthenticationWrapper extends StatelessWidget {
   const AuthenticationWrapper({
     Key key,
@@ -48,7 +51,8 @@ class AuthenticationWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final firebaseUser = context.watch<User>();
-    if (firebaseUser != null) return MyHomePage(title: 'Movies');
+    if (firebaseUser != null) return Home();
+    // MyHomePage(title: 'Movies')
     return SignInPage();
   }
 }

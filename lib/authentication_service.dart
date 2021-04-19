@@ -8,12 +8,16 @@ class AuthenticationService {
   Stream<User> get authStateChanges => _firebaseAuth.authStateChanges();
 
   Future<String> signIn({String email, String password}) async {
+    String err = "";
     try {
       await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
+
       return "Signed in";
     } on FirebaseAuthException catch (e) {
-      return e.message;
+      print('Failed with error code: ${e.code}');
+      err = e.code;
+      return err;
     }
   }
 

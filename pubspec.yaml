@@ -31,6 +31,8 @@ dependencies:
   firebase_auth: ^1.0.1
   provider: ^5.0.0
   google_sign_in: ^5.0.1
+  cloud_firestore: ^1.0.4
+
 
   # flutter_facebook_login: ^3.0.0
   flutter_signin_button: ^1.1.0
@@ -64,7 +66,8 @@ flutter:
   assets:
     - ./assets/images/placeholder.png
     - ./assets/images/Movie_Night.gif
-    - ./assets/images/popcorn.png
+    - ./assets/images/watch.png
+    - ./assets/images/login.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
