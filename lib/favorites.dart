@@ -2,13 +2,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 // Future<void> DeleteMovie(String id) async {}
-Future<List> getData() async {
+Future<List> getTitles() async {
   QuerySnapshot querySnapshot =
       await FirebaseFirestore.instance.collection('favorites').get();
 
   // Get data from docs and convert map to List
   final allData =
       querySnapshot.docs.map((doc) => doc.data()['title']).toSet().toList();
+
+  print(allData);
+  return allData;
+}
+
+Future<List> getImages() async {
+  QuerySnapshot querySnapshot =
+      await FirebaseFirestore.instance.collection('favorites').get();
+
+  // Get data from docs and convert map to List
+  final allData =
+      querySnapshot.docs.map((doc) => doc.data()['image']).toSet().toList();
 
   print(allData);
   return allData;
