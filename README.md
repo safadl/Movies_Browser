@@ -1,7 +1,6 @@
 # movies_browser
 
-A new Flutter project.
-
+Flutter App
 ## Getting Started
 
 This project is a starting point for a Flutter application.
